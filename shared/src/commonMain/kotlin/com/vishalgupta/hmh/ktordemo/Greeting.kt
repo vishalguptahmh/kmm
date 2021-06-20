@@ -1,5 +1,6 @@
 package com.vishalgupta.hmh.ktordemo
 
+import com.vishalgupta.hmh.ktordemo.networking.NetworkingService
 import io.github.aakira.napier.Napier
 import io.ktor.client.*
 import io.ktor.client.features.json.*
@@ -15,29 +16,8 @@ data class Hello (
 )
 
 class Greeting {
-    val httpclient = HttpClient(){
-        install(Logging){
-            level = LogLevel.ALL
-            logger = object : Logger{
-                override fun log(message: String) {
-                    Napier.v(tag="Http Client",message= message)
-                }
-            }
-        }
-        install(JsonFeature){
-            val jsonn = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            serializer = KotlinxSerializer(jsonn)
-        }
-    }.also { initLogger() }
-
-
-    @Throws(Exception::class)
+    val networkingService = NetworkingService()
     suspend fun greeting(): String {
-        return "Hello, ${Platform().platform}! ${getHello()}"
-    }
-
-    private suspend fun getHello() : String{
-       val response : HttpResponse =  httpclient.get("https://jsonplaceholder.typicode.com/posts/1")
-        return response.readText()
+        return "Hello, ${Platform().platform}! ${networkingService.getSinglePost().title}"
     }
 }
